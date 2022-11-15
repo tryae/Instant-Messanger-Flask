@@ -13,4 +13,4 @@ once you have these it will work just fine.
 
 ## Notes
  - the userpage and all conversations page can only be accessed when a user has already been created and is currently in the session/logged in and while a user is signed the login and sign up pages can not be accessed until the user signs out.
- - once the code runs it will create a server.db file in the instance folder for the users and chatrooms to be stored.
+ - once the code runs it will create a instance folder and inside a server.db file for the users and chatrooms to be stored in.
