@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{% endblock %}
+
+{% block style %}
+<style>
+    .center {
+        width: 500px;
+        height: 316px;
+        border: 2px solid rgb(43, 41, 41);
+        border-radius: 10px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+    }
+    
+    .centerinput {
+        margin-left: 25px;
+        width: 400px;
+    }
+    .flashtext {
+        margin-left: 10px;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for msg in messages %}
+            <p class="flashtext">{{msg}}</p>
+        {% endfor %}
+    {% endif %}
+{% endwith %} 
+<div class="center">
+    <h2 style="text-align: center;">Chatrooms you have been in</h2>
+    <hr>
+    <div style="height: 160px;">
+    {% if userchatrooms %}
+        <form class="centerinput" method="post">
+            <input type="hidden" name="form_name" value="chatselect"> 
+            <select name="Userchats" size="7" style="width: 450px;" onchange="this.form.submit()">
+                {% for i in userchatrooms %}
+                    <option value="{{i}}">{{i}}</option>
+                {% endfor %}
+            </select>
+        </form>
+    {% else %}
+        <h3 style="text-align: center;">No chatrooms yet</h3>
+    {% endif %}
+    </div>
+    <hr>
+    <form method="post">
+        <input type="hidden" name="form_name" value="chatroom_name">
+        <p style="text-align: center;">Make new chatroom: <input type="text" name="make_chatroom_name" placeholder="Name" /> <input type="submit" value="Create"></p>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+
+{% block style %}
+<style>
+    .center {
+        width: 360px;
+        height: 310px;
+        border: 2px solid rgb(43, 41, 41);
+        border-radius: 10px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+    }
+    
+    .centerinput {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        -ms-transform: translateX(-50%);
+    }
+
+    .flashtext {
+        margin-left: 10px;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                <p class="flashtext">{{msg}}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}  
+<div class="center">
+    <h1 style="text-align: center;">Enter Credetails</h1>
+    <hr>
+    <form class="centerinput" action="#" method="post">
+        <p>username:</p>
+        <p><input type="text" name="user" size="21"/></p>
+        <p>password:</p>
+        <p><input type="text" name="pass" size="21"/></p>
+
+        <p style="text-align: center;"><input type="submit" /></p>
+    </form>
+</div>
+{% endblock %}
+

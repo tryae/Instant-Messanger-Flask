@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}{% endblock %}
+
+{% block style %}
+<style>
+    .chatbox {
+        position: absolute;
+        top: 65px;
+        bottom: 85px;
+        left:10px;
+        right: 10px;
+        border: 2px solid rgb(70, 65, 65);
+        border-radius: 10px;
+        overflow-y: auto;
+    }
+
+    .messagebox {
+        position: absolute;
+        bottom: 0px;
+        height: 80px;
+        left: 0px;
+        right: 0px;
+        background-color: black;
+    }
+    .textbox {
+        position: absolute;
+        left: 10px;
+        right: 85px;
+        bottom: 5px;
+        height: 75px;
+    }
+    .button {
+        position: absolute;
+        right: 10px;
+        bottom: 5px;
+        width: 70px;
+        height: 75px;
+    }
+    textarea {
+        resize: none;
+    }
+    .flashtext {
+        position: absolute;
+        top: 12px;
+        right: 10px;
+    }
+    
+    .sender_message_box {
+        max-width: 1000px;
+        clear: both;
+        float: right;
+        text-align: right;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: 2px solid rgb(0, 0, 0);
+        background-color: rgb(161, 161, 253);
+        border-radius: 10px 10px 0px 10px;
+        margin-right: 10px;
+        margin-left: 10px;
+    }
+
+    .others_message_box {
+        max-width: 1000px;
+        clear: both;
+        float: left;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: 2px solid rgb(0, 0, 0);
+        background-color: rgb(151, 147, 147);
+        border-radius: 10px 10px 10px 0px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    h4 {
+        margin-top: 6px;
+        margin-left: 10px;
+        margin-right: 10px;
+        margin-bottom: 7px;
+    }
+    p {
+        margin-top: 7px;
+        margin-left: 10px;
+        margin-right: 10px;
+        margin-bottom: 8px;
+    }
+    .announcement {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        clear: both;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for msg in messages %}
+            <p class="flashtext">{{msg}}</p>
+        {% endfor %}
+    {% endif %}
+{% endwith %} 
+<div class="chatbox" id="chat_box">
+    {% for i in logs %}
+        {% if i.user == user %}
+            <div class="sender_message_box">
+                <h4>{{user}}</h4>
+                <p style="text-align: left;">{{i.message}}</p>
+            </div>
+        {% else %}
+            <div class="others_message_box">
+                <h4>{{i.user}}</h4>
+                <p>{{i.message}}</p>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+</div>
+
+<form method="post" action="#" id="message_input_form">
+    <textarea  placeholder="type message here" class="textbox" id="message_input" name="message"></textarea> 
+    <input type="submit" value="send" class="button">
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script type="text/javascript" charset="utf-8">
+    var socket = io();
+    socket.on('connect', function() {
+        socket.emit('join_room', {user: '{{user}}', room: '{{chatroom}}'});
+
+        let message_input = document.getElementById('message_input');
+        document.getElementById('message_input_form').onsubmit = function(e) {
+            e.preventDefault();
+            let message = message_input.value.trim()
+            if (message.length) {
+                socket.emit('send_message', { user: '{{user}}', room: '{{chatroom}}', message: message})
+            }
+            message_input.value = '';
+            message_input.focus();
+        }
+
+        const chat = document.getElementById('chat_box')
+
+        function toBottom() {
+            chat.scrollTo(0, chat.scrollHeight);
+        }
+        toBottom();
+    });
+    socket.on('join_room_announcement', function(data) {
+        const div = document.createElement('div');
+        div.setAttribute('class', 'announcement')
+        div.innerHTML = `
+            <em><p>${data['user']}</em> has entered the room</p>
+        `;
+        document.getElementById('chat_box').appendChild(div)
+    })
+
+    socket.on('receive_message', function(data) {
+        const div = document.createElement('div');
+        const chat = document.getElementById('chat_box')
+
+        function toBottom() {
+            chat.scrollTo(0, chat.scrollHeight);
+        }
+        toBottom()
+        if (data['user'] == '{{user}}'){
+            console.log(data)
+            div.setAttribute('class', 'sender_message_box')
+            div.innerHTML = `
+                <h4>${data['user']}</h4>
+                <p style="text-align: left;">${data['message']}</p>
+            `;
+            document.getElementById('chat_box').appendChild(div)
+        }else{
+            div.setAttribute('class', 'others_message_box')
+            div.innerHTML = `
+                <h4>${data['user']}</h4>
+                <p>${data['message']}</p>
+            `;
+            document.getElementById('chat_box').appendChild(div)
+        }
+        toBottom();
+    })
+
+</script>
+{% endblock %}
